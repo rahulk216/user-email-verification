@@ -2,7 +2,6 @@ import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 
 async function sendMail(emailId, url) {
-	
 	const CLIENT_ID = process.env.CLIENT_ID;
 	const CLIENT_SECRET = process.env.CLIENT_SECRET;
 	const REDIRECT_URI = process.env.REDIRECT_URI;
@@ -29,20 +28,20 @@ async function sendMail(emailId, url) {
 				clientSecret: CLIENT_SECRET,
 				clientId: CLIENT_ID,
 				refreshToken: REFRESH_TOKEN,
-				accessToken: accesstoken, 
+				accessToken: accesstoken,
 			},
 		});
 		const mailoptions = {
-			from: '"FatFox" <thefatfoxtest@gmail.com>', 
-			to: emailId, 
-			subject: 'Verification Email', 
-			text: 'User Verification', 
+			from: '"FatFox" <thefatfoxtest@gmail.com>',
+			to: emailId,
+			subject: 'Verification Email',
+			text: 'User Verification',
 			priority: 'high',
-			html: url, 
+			html: url,
 		};
 		let info = await transporter.sendMail(
 			mailoptions,
-			function (error, info) {
+			async function (error, info) {
 				if (error) {
 					console.log(error);
 					conn.rollback(function () {

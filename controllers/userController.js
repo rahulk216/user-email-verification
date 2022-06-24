@@ -48,8 +48,15 @@ const register = asyncHandler(async (req, res) => {
 	const urlKey = cryptoRandomString({ length: 20, type: 'base64' });
 	const verifyUrl = `http://localhost:5000/${user._id}/verify/${urlKey}`;
 	console.log(verifyUrl);
-	const info = await sendMail(email, verifyUrl);
-	console.log(info)
+
+	await sendMail(email, verifyUrl);
+
+	const tokenCreated = await Token.create({
+		userId: user._id,
+		token: urlKey,
+	});
+	console.log(tokenCreated);
+
 	if (user) {
 		res.status(200).json({
 			_id: user._id,

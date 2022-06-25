@@ -11,15 +11,18 @@ const login = asyncHandler(async (req, res) => {
 	//let token;
 	try {
 		const user = await User.findOne({ email: email, password: password });
-		if (user && (await bcrypt.compare(user.password, password))) {
-			res.json({
-				name: user.name,
-				email: user.email,
-				token: generateToken(user._id),
-			});
-		} else {
-			res.send('user not found');
+		if (user.isVerified) {
+			if (user && (await bcrypt.compare(user.password, password))) {
+				res.json({
+					name: user.name,
+					email: user.email,
+					token: generateToken(user._id),
+				});
+			} else {
+				res.send('user not found');
+			}
 		}
+		res.send('User is not Verified ! Please Check your email ')
 	} catch (error) {
 		res.status(400).json(error);
 	}

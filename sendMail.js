@@ -32,7 +32,7 @@ async function sendMail(emailId, url) {
 			},
 		});
 		const mailoptions = {
-			from: '"FatFox" <thefatfoxtest@gmail.com>',
+			from: '"E-Commerce" <thefatfoxtest@gmail.com>',
 			to: emailId,
 			subject: 'Verification Email',
 			text: 'User Verification',

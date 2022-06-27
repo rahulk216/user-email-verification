@@ -32,6 +32,8 @@ app.get('/:id/verify/:key', async (req, res) => {
 			{ new: true }
 		);
 		console.log(verifyUser);
+		//tokenUser.remove();
+		await Token.deleteOne({ _id: tokenUser._id });
 		res.json({
 			id,
 			key,

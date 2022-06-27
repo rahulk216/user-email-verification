@@ -14,7 +14,7 @@ const tokenModel = mongoose.Schema({
 	createdAt: {
 		type: Date,
 		default: Date.now(),
-		expires: 1200,
+		expireAfterSeconds: 3600,
 	},
 });
 

@@ -3,29 +3,31 @@ import User from '../Models/UserModel.js';
 import Token from '../Models/TokenModel.js';
 import bcrypt from 'bcryptjs';
 import generateToken from '../generateToken.js';
-import cryptoRandomString from 'crypto-random-string';
+
+import randomstring from 'randomstring';
+
 import sendMail from '../sendMail.js';
 
 const login = asyncHandler(async (req, res) => {
 	const { email, password } = req.body;
-	//let token;
-	try {
-		const user = await User.findOne({ email: email, password: password });
+	console.log(email, password);
+	const user = await User.findOne({ email: email });
+	//console.log(user);
+
+	if (user && (await user.matchPassword(password))) {
 		if (user.isVerified) {
-			if (user && (await bcrypt.compare(user.password, password))) {
-				res.json({
-					name: user.name,
-					email: user.email,
-					token: generateToken(user._id),
-				});
-			} else {
-				res.send('user not found');
-			}
+			res.json({
+				success: true,
+				name: user.name,
+				email: user.email,
+				token: generateToken(user._id),
+			});
 		}
-		res.send('User is not Verified ! Please Check your email ')
-	} catch (error) {
-		res.status(400).json(error);
+		res.status(401).send('User not verified');
+		throw new Error('User not verified');
 	}
+	res.status(401).send('User Not found');
+	throw new Error('User not found');
 });
 
 const register = asyncHandler(async (req, res) => {
@@ -44,28 +46,30 @@ const register = asyncHandler(async (req, res) => {
 	const user = await User.create({
 		name,
 		email,
-		password,
+		password: hashedPassword,
 	});
-
-	//crypto key
-	const urlKey = cryptoRandomString({ length: 20, type: 'base64' });
-	const verifyUrl = `http://localhost:5000/${user._id}/verify/${urlKey}`;
-	console.log(verifyUrl);
-
-	await sendMail(email, verifyUrl);
-
-	const tokenCreated = await Token.create({
-		userId: user._id,
-		token: urlKey,
-	});
-	console.log(tokenCreated);
 
 	if (user) {
+		//crypto key
+		const urlKey = randomstring.generate({
+			length: 12,
+			charset: 'alphabetic',
+		});
+		const verifyUrl = `http://localhost:5000/${user._id}/verify/${urlKey}`;
+		console.log(verifyUrl);
+
+		await sendMail(email, verifyUrl);
+
+		const tokenCreated = await Token.create({
+			userId: user._id,
+			token: urlKey,
+		});
+		console.log(tokenCreated);
+		console.log('created token');
+
 		res.status(200).json({
-			_id: user._id,
-			name: user.name,
-			email: user.email,
-			token: generateToken(user._id),
+			message:
+				'Email Send to the corresponding email ID . Kindly verify and proceed to login',
 		});
 	}
 });
